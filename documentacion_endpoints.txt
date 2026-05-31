@@ -1,0 +1,82 @@
+=============================================================================
+DOCUMENTACIÓN DEL SISTEMA DE MICROSERVICIOS - TRIATLÓN
+=============================================================================
+
+-----------------------------------------------------------------------------
+1. CREDENCIALES DE BASE DE DATOS (application.properties / application.yml)
+-----------------------------------------------------------------------------
+(Nota: Reemplaza 'tu_usuario', 'tu_contraseña' y el puerto si tienes una configuración diferente en MySQL).
+
+# Microservicio 1: Triatletas (Puerto 9000)
+spring.datasource.url=jdbc:mysql://localhost:3306/triatletas_db?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=root
+spring.jpa.hibernate.ddl-auto=update
+
+# Microservicio 2: Carreras (Puerto 9001)
+spring.datasource.url=jdbc:mysql://localhost:3306/carreras_db?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=root
+spring.jpa.hibernate.ddl-auto=update
+
+# Microservicio 3: Categorias (Puerto 9002)
+spring.datasource.url=jdbc:mysql://localhost:3306/categorias_db?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=root
+spring.jpa.hibernate.ddl-auto=update
+
+=============================================================================
+2. ENDPOINTS - MICROSERVICIO ATLETAS (http://localhost:9000/api/atletas)
+=============================================================================
+
+[ GET ]     /                                  -> Lista todos los triatletas (Soporta query params opcionales: ?genero=, ?categoria=, ?especialidad=, ?modalidadCross=)
+[ GET ]     /{identificacion}                  -> Obtiene un triatleta específico por su identificación
+[ POST ]    /atleta                            -> Registra un nuevo triatleta (Requiere JSON en Body)
+[ PUT ]     /{identificacion}                  -> Actualización completa de un triatleta (Requiere JSON en Body)
+[ DELETE ]  /delete/{identificacion}           -> Elimina un triatleta del sistema
+[ PATCH ]   /{identificacion}/nombre           -> Actualiza el nombre (Requiere query param: ?nuevoNombre=)
+[ PATCH ]   /{identificacion}/identificacion   -> Actualiza la identificación (Requiere query param: ?nuevaIdentificacion=)
+[ PATCH ]   /{identificacion}/categoria        -> Actualiza la categoría (Requiere query param: ?nuevaCategoria=)
+
+--- Integración con Carreras ---
+[ POST ]    /{identificacion}/carrera/{idCarrera} -> Registra al atleta en una carrera
+[ GET ]     /{identificacion}/carrera             -> Consulta la carrera en la que está inscrito el atleta
+[ PATCH ]   /{identificacion}/eliminarCarrera     -> Elimina/Desvincula la carrera del atleta
+
+
+=============================================================================
+3. ENDPOINTS - MICROSERVICIO CARRERAS (http://localhost:9001/api/carreras)
+=============================================================================
+
+[ GET ]     /                                  -> Lista todas las carreras
+[ GET ]     /{id}                              -> Consulta una carrera por su ID
+[ POST ]    /carrera                           -> Registra una carrera (Requiere JSON en Body)
+[ DELETE ]  /delete/{id}                       -> Elimina una carrera del sistema
+[ PATCH ]   /{id}/ubicacion                    -> Actualiza la ubicación (Requiere String en Body)
+[ PATCH ]   /{id}/fecha                        -> Actualiza la fecha (Requiere LocalDate en Body)
+
+--- Integración con Atletas ---
+[ POST ]    /{id}/registrarAtleta/{idAtleta}   -> Inscribe un atleta en la carrera
+[ DELETE ]  /{id}/eliminarAtleta/{idAtleta}    -> Elimina un atleta de la carrera
+[ GET ]     /{id}/atletas                      -> Consulta todos los atletas inscritos en la carrera
+
+--- Integración con Categorías ---
+[ GET ]     /{id}/categoria                    -> Consulta los datos de la categoría asociada a la carrera
+[ GET ]     /categoria/{idCategoria}           -> Consulta todas las carreras de una categoría específica
+[ PATCH ]   /{id}/eliminarCategoria            -> Elimina/Desvincula la categoría asignada a la carrera
+
+
+=============================================================================
+4. ENDPOINTS - MICROSERVICIO CATEGORIAS (http://localhost:9002/api/categorias)
+=============================================================================
+
+[ GET ]     /                                  -> Consulta todas las categorías
+[ GET ]     /{id}                              -> Consulta una categoría por su ID
+[ POST ]    /categoria                         -> Registra una nueva categoría (Requiere JSON en Body)
+[ DELETE ]  /delete/{id}                       -> Elimina una categoría del sistema
+[ PATCH ]   /{id}/descripcion                  -> Actualiza la descripción de la categoría (Requiere String en Body)
+[ PATCH ]   /{id}/recomendacion                -> Actualiza la recomendación de la categoría (Requiere String en Body)
+
+--- Integración con Carreras ---
+[ GET ]     /{id}/carreras                     -> Consulta todas las carreras asociadas a esta categoría
+[ DELETE ]  /{id}/Eliminarcarrera/{idCarrera}  -> Elimina/Desvincula una carrera específica de la categoría
